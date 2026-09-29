@@ -13,10 +13,21 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Database Connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// Database connection for Serverless
+const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) return;
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('Database Connected');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+  }
+};
+
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
