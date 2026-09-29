@@ -34,6 +34,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/public', require('./routes/public'));
 app.use('/api/progress', require('./routes/progress'));
+app.use('/api/visits', require('./routes/visits'));
 
 // Basic route for testing
 app.get('/', (req, res) => {
