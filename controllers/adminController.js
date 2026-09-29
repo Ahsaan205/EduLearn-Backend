@@ -82,8 +82,13 @@ const deleteQuestion = async (req, res) => {
 
 const clearChapterQuestions = async (req, res) => {
   try {
-    await Question.deleteMany({ chapterId: req.params.chapterId });
-    res.json({ message: 'All questions cleared for this chapter' });
+    const { type } = req.query;
+    const query = { chapterId: req.params.chapterId };
+    if (type) {
+      query.type = type;
+    }
+    await Question.deleteMany(query);
+    res.json({ message: type ? `All ${type} questions cleared for this chapter` : 'All questions cleared for this chapter' });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

@@ -123,4 +123,58 @@ const changePassword = async (req, res) => {
   }
 };
 
-module.exports = { adminLogin, registerStudent, unifiedLogin, updateProfile, changePassword };
+const axios = require('axios');
+
+const googleLogin = async (req, res) => {
+  try {
+    const { token } = req.body; // This is the access_token from the frontend
+    
+    // Fetch user info from Google using the access token
+    const { data } = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const { email, name, picture } = data;
+
+    let student = await Student.findOne({ email });
+
+    // If student doesn't exist, create a new account
+    if (!student) {
+      // Generate random password for google sign-in users
+      const randomPassword = Math.random().toString(36).slice(-10);
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+      student = new Student({
+        name: name || email.split('@')[0],
+        email,
+        password: hashedPassword,
+        image: picture,
+        gender: 'Not Selected',
+      });
+      await student.save();
+    }
+
+    const jwtToken = jwt.sign({ id: student._id, role: 'student' }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    res.json({ 
+      token: jwtToken, 
+      user: { 
+        id: student._id, 
+        name: student.name, 
+        email: student.email, 
+        age: student.age, 
+        gender: student.gender, 
+        phone: student.phone, 
+        address: student.address, 
+        image: student.image, 
+        role: 'student' 
+      } 
+    });
+
+  } catch (err) {
+    console.error("Google login error: ", err);
+    res.status(500).json({ message: err.response?.data?.error || err.message || 'Google Auth failed' });
+  }
+}
+
+module.exports = { adminLogin, registerStudent, unifiedLogin, updateProfile, changePassword, googleLogin };
