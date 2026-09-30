@@ -13,8 +13,13 @@ const boardsData = [
 
 const classesData = [9, 10, 11, 12];
 
-const subjectsMatric = [
-  'English', 'Urdu', 'Islamic Studies (for Muslims)', 'Pakistan Studies', 
+const subjects9th = [
+  'English', 'Urdu', 'Islamic Studies (for Muslims)', 
+  'Tarjama-tul-Quran', 'Mathematics (Science Group)', 'Physics', 
+  'Chemistry', 'Biology', 'Computer Science'
+];
+const subjects10th = [
+  'English', 'Urdu', 'Pakistan Studies', 
   'Tarjama-tul-Quran', 'Mathematics (Science Group)', 'Physics', 
   'Chemistry', 'Biology', 'Computer Science'
 ];
@@ -63,8 +68,10 @@ async function seedDatabase() {
     // Prepare Subjects for each Class
     for (const cls of createdClasses) {
       let subjectsList = [];
-      if (cls.gradeLevel === 9 || cls.gradeLevel === 10) {
-        subjectsList = subjectsMatric;
+      if (cls.gradeLevel === 9) {
+        subjectsList = subjects9th;
+      } else if (cls.gradeLevel === 10) {
+        subjectsList = subjects10th;
       } else if (cls.gradeLevel === 11) {
         subjectsList = subjectsInterPart1;
       } else if (cls.gradeLevel === 12) {
